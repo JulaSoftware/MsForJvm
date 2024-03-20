@@ -21,12 +21,20 @@ tasks.test {
 
 tasks.jar {
     manifest {
-        attributes(mapOf("Implementation-Title" to project.name,
-            "Implementation-Version" to project.version))
+        attributes(
+            mapOf(
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version
+            )
+        )
     }
 }
 
 java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+
     modularity.inferModulePath = false
     withSourcesJar()
     withJavadocJar()
