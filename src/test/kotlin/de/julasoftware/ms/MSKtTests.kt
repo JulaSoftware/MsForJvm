@@ -15,12 +15,6 @@ class MSKtTests {
         msInstance = MS()
     }
 
-    //@Test
-    fun debug() {
-        val t1 = msInstance.format(500)
-        val t2 = msInstance.format(500, MS.OPTION_LONG_FORMAT)
-    }
-
     @Test
     fun noException() {
         Assertions.assertDoesNotThrow { msInstance.parse("1m") }

@@ -17,6 +17,12 @@ class MS {
         const val OPTION_PRECISION_SPLIT_VALUE = 0x04
     }
 
+    /**
+     * Function to convert a human-readable time duration expression into a millisecond value
+     * @param string human-readable value of a duration of time
+     * @param numberLocale locale for parsing number decimals. Default is <code>English</code>
+     * @return parsed value with unit
+     */
     fun parse(string: String, numberLocale: Locale = Locale.ENGLISH): Double? {
         if (string.length > 100) {
             throw IllegalArgumentException("String must not be empty")
@@ -36,14 +42,32 @@ class MS {
         return null
     }
 
+    /**
+     * Formats a duration of time in milliseconds into a human-readable expression
+     * @param value time duration in milliseconds
+     * @param flags Options for the output format
+     * @return human-readable expression
+     */
     fun format(value: Long, flags: Int = 0): String {
         return splitCheck(value, flags)
     }
 
+    /**
+     * Formats a duration of time in milliseconds into a human-readable expression
+     * @param value time duration in milliseconds
+     * @param flags Options for the output format
+     * @return human-readable expression
+     */
     fun format(value: Int, flags: Int = 0): String {
         return splitCheck(value, flags)
     }
 
+    /**
+     * Formats a duration of time in milliseconds into a human-readable expression
+     * @param value time duration in milliseconds
+     * @param flags Options for the output format
+     * @return human-readable expression
+     */
     fun format(value: BigInteger, flags: Int = 0): String {
         return splitCheck(value, flags)
     }

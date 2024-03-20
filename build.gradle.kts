@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.23"
+    id("java-library")
+    id("java-library-distribution")
 }
 
 group = "de.julasoftware"
@@ -15,4 +17,17 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.jar {
+    manifest {
+        attributes(mapOf("Implementation-Title" to project.name,
+            "Implementation-Version" to project.version))
+    }
+}
+
+java {
+    modularity.inferModulePath = false
+    withSourcesJar()
+    withJavadocJar()
 }
