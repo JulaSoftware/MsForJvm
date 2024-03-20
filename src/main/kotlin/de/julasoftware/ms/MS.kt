@@ -4,7 +4,6 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.NumberFormat
 import java.util.*
-import kotlin.math.roundToLong
 
 class MS {
     private val regex =
@@ -37,61 +36,137 @@ class MS {
         return null
     }
 
-    fun format(value: Number, flags: Int = 0): String {
+    fun format(value: Long, flags: Int = 0): String {
+        return splitCheck(value, flags)
+    }
+
+    fun format(value: Int, flags: Int = 0): String {
+        return splitCheck(value, flags)
+    }
+
+    fun format(value: BigInteger, flags: Int = 0): String {
+        return splitCheck(value, flags)
+    }
+
+    private fun splitCheck(value: Number, flags: Int): String {
+        if ((flags and OPTION_PRECISION_SPLIT_VALUE) != 0) {
+
+
+            return formatInternal(value, flags)
+        }
+
+        return formatInternal(value, flags)
+    }
+
+    private fun formatInternal(value: Number, flags: Int): String {
         val absoluteValue = abs(value)
+        val pair = calculateValue(value, flags)
 
         val longFormat = (flags and OPTION_LONG_FORMAT) != 0
         val space = if (longFormat) " " else ""
 
-        return when {
-            absoluteValue.toDouble() > Unit.Days.factor -> "${Math.round(div(value, Unit.Days.factor).toDouble())} ${
-                plural(
-                    absoluteValue,
-                    Unit.Days.factor,
-                    " day"
-                )
-            }"
+        val unitName = when (pair.second) {
+            Unit.Years,
+            Unit.Year,
+            Unit.Yrs,
+            Unit.Yr,
+            Unit.Y -> if (longFormat) {
+                plural(absoluteValue, Unit.Days.factor, "year")
+            } else "y"
 
-            absoluteValue.toDouble() > Unit.Hours.factor -> "${Math.round(div(value, Unit.Hours.factor).toDouble())} ${
-                plural(
-                    absoluteValue,
-                    Unit.Hours.factor,
-                    " hour"
-                )
-            }"
+            Unit.Weeks,
+            Unit.Week,
+            Unit.W -> if (longFormat) {
+                plural(absoluteValue, Unit.Days.factor, "week")
+            } else "w"
 
-            absoluteValue.toDouble() > Unit.Minutes.factor -> "${
-                Math.round(
-                    div(
-                        value,
-                        Unit.Minutes.factor
-                    ).toDouble()
-                )
-            } ${
-                plural(
-                    absoluteValue,
-                    Unit.Minutes.factor,
-                    " minute"
-                )
-            }"
+            Unit.Days,
+            Unit.Day,
+            Unit.D -> if (longFormat) {
+                plural(absoluteValue, Unit.Days.factor, "day")
+            } else "d"
 
-            absoluteValue.toDouble() > Unit.Seconds.factor -> "${
-                Math.round(
-                    div(
-                        value,
-                        Unit.Seconds.factor
-                    ).toDouble()
-                )
-            } ${
-                plural(
-                    absoluteValue,
-                    Unit.Seconds.factor,
-                    " second"
-                )
-            }"
+            Unit.Hours,
+            Unit.Hour,
+            Unit.Hrs,
+            Unit.Hr,
+            Unit.H -> if (longFormat) {
+                plural(absoluteValue, Unit.Hours.factor, "hour")
+            } else "h"
 
-            else -> "${value}${space}ms"
+
+            Unit.Minutes,
+            Unit.Minute,
+            Unit.Mins,
+            Unit.Min,
+            Unit.M -> if (longFormat) {
+                plural(absoluteValue, Unit.Minutes.factor, "minute")
+            } else "m"
+
+
+            Unit.Seconds,
+            Unit.Second,
+            Unit.Secs,
+            Unit.Sec,
+            Unit.S -> if (longFormat) {
+                plural(absoluteValue, Unit.Seconds.factor, "second")
+            } else "s"
+
+            else -> "ms"
         }
+
+        return "${pair.first}${space}${unitName}"
+    }
+
+    private fun calculateValue(value: Number, flags: Int): Pair<Number, Unit> {
+        val absoluteValue = abs(value)
+        val splitOptionActive = (flags and OPTION_PRECISION_SPLIT_VALUE) != 0
+
+        return when {
+            absoluteValue.toDouble() >= Unit.Years.factor && splitOptionActive -> Pair(
+                precisionValue(div(value, Unit.Years.factor), flags),
+                Unit.Years
+            )
+
+            absoluteValue.toDouble() >= Unit.Weeks.factor && splitOptionActive -> Pair(
+                precisionValue(div(value, Unit.Weeks.factor), flags),
+                Unit.Weeks
+            )
+
+            absoluteValue.toDouble() >= Unit.Days.factor -> Pair(
+                precisionValue(div(value, Unit.Days.factor), flags),
+                Unit.Days
+            )
+
+            absoluteValue.toDouble() >= Unit.Hours.factor -> Pair(
+                precisionValue(div(value, Unit.Hours.factor), flags),
+                Unit.Hours
+            )
+
+            absoluteValue.toDouble() >= Unit.Minutes.factor -> Pair(
+                precisionValue(
+                    div(value, Unit.Minutes.factor),
+                    flags
+                ), Unit.Minutes
+            )
+
+            absoluteValue.toDouble() >= Unit.Seconds.factor -> Pair(
+                precisionValue(
+                    div(value, Unit.Seconds.factor),
+                    flags
+                ), Unit.Seconds
+            )
+
+            else -> Pair(value, Unit.Milliseconds)
+        }
+    }
+
+    private fun precisionValue(value: Double, flags: Int): Number {
+        if ((flags and OPTION_PRECISION_SINGLE_VALUE) != 0 || (flags and OPTION_PRECISION_SPLIT_VALUE) != 0) {
+            return value;
+        }
+
+        return Math.round(value)
     }
 
     private fun plural(absValue: Number, factor: Double, unitName: String): String =
@@ -105,27 +180,27 @@ class MS {
         val absoluteValue: Number = when (x) {
             is Double -> kotlin.math.abs(x)
             is Int -> kotlin.math.abs(x)
+            is Long -> kotlin.math.abs(x)
             is Float -> kotlin.math.abs(x)
             is BigDecimal -> x.abs()
             is BigInteger -> x.abs()
             else -> throw IllegalArgumentException("unsupported type ${x.javaClass}")
         }
 
-        @Suppress("UNCHECKED_CAST")
-        return absoluteValue as T
+        @Suppress("UNCHECKED_CAST") return absoluteValue as T
     }
 
-    private fun <T : Number> div(value: T, otherValue: Double): T {
-        val divNum: Number = when (value) {
+    private fun <T : Number> div(value: T, otherValue: Double): Double {
+        val divNum: Double = when (value) {
             is Double -> value.div(otherValue)
             is Int -> value.div(otherValue)
+            is Long -> value.div(otherValue)
             is Float -> value.div(otherValue)
-            is BigDecimal -> BigDecimal(value.toDouble() / otherValue)
-            is BigInteger -> BigInteger((value.toDouble() / otherValue).roundToLong().toString())
+            is BigDecimal -> value.toDouble() / otherValue
+            is BigInteger -> value.toDouble() / otherValue
             else -> throw IllegalArgumentException("unsupported type ${value.javaClass}")
         }
 
-        @Suppress("UNCHECKED_CAST")
-        return divNum as T
+        return divNum
     }
 }

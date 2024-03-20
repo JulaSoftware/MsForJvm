@@ -34,7 +34,7 @@ enum class Unit(val factor: Double) {
     Second(second),
     Secs(second),
     Sec(second),
-    s(second),
+    S(second),
     Milliseconds(millisecond),
     Millisecond(millisecond),
     Msecs(millisecond),
