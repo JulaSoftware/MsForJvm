@@ -1,14 +1,14 @@
-package de.julasoftware.de.julasoftware.ms
+package de.julasoftware.ms
 
-private val millisecond = 1
-private val second = millisecond * 1000
-private val minute = second * 60
-private val hour = minute * 60
-private val day = hour * 24
-private val week = day * 7
-private val year = day * 365.25
+private const val millisecond = 1.0
+private const val second = millisecond * 1000.0
+private const val minute = second * 60.0
+private const val hour = minute * 60.0
+private const val day = hour * 24.0
+private const val week = day * 7.0
+private const val year = day * 365.25
 
-enum class Unit(val factor: Number) {
+enum class Unit(val factor: Double) {
     Years(year),
     Year(year),
     Yrs(year),
