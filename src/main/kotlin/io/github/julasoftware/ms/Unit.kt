@@ -1,4 +1,4 @@
-package de.julasoftware.ms
+package io.github.julasoftware.ms
 
 private const val millisecond = 1.0
 private const val second = millisecond * 1000.0

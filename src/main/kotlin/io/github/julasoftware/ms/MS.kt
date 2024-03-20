@@ -1,4 +1,4 @@
-package de.julasoftware.ms
+package io.github.julasoftware.ms
 
 import java.math.BigDecimal
 import java.math.BigInteger
