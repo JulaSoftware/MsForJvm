@@ -6,7 +6,7 @@ package io.github.julasoftware.ms
 data class Options(
     /**
      * controls whether the text output is compact <code>20s</code> or verbose <code>20 seconds</code>
-     * 
+     *
      * Default: false
      */
     val longFormat: Boolean = false,
