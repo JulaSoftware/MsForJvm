@@ -100,7 +100,7 @@ class MS {
 
             } while (countDownMsNumber > 0 || abs(remains[1]) > BigDecimal.ZERO)
 
-            return list.joinToString(options.splitTextOutputChar)
+            return list.joinToString(options.splitDelimiter)
         }
 
         return formatInternal(value, options)

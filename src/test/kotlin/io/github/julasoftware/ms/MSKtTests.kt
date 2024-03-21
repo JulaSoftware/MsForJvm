@@ -265,59 +265,59 @@ class MSKtTests {
         assertEquals("1 second", msInstance.format(1000, Options(splitTextOutput = true, longFormat = true)))
         assertEquals(
             "1 second, 200 ms",
-            msInstance.format(1200, Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", "))
+            msInstance.format(1200, Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", "))
         )
         assertEquals(
             "10 seconds",
-            msInstance.format(10000, Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", "))
+            msInstance.format(10000, Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", "))
         )
         assertEquals(
             "-1 second",
-            msInstance.format(-1000, Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", "))
+            msInstance.format(-1000, Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", "))
         )
         assertEquals(
             "-1 second, 200 ms",
-            msInstance.format(-1200, Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", "))
+            msInstance.format(-1200, Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", "))
         )
         assertEquals(
             "-10 seconds",
-            msInstance.format(-10000, Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", "))
+            msInstance.format(-10000, Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", "))
         )
 
         assertEquals(
             "1 minute",
-            msInstance.format(60 * 1000, Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", "))
+            msInstance.format(60 * 1000, Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", "))
         )
         assertEquals(
             "1 minute, 12 seconds",
-            msInstance.format(60 * 1200, Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", "))
+            msInstance.format(60 * 1200, Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", "))
         )
         assertEquals(
             "10 minutes",
             msInstance.format(
                 60 * 10000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "-1 minute",
             msInstance.format(
                 -1 * 60 * 1000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "-1 minute, 12 seconds",
             msInstance.format(
                 -1 * 60 * 1200,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "-10 minutes",
             msInstance.format(
                 -1 * 60 * 10000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
 
@@ -325,42 +325,42 @@ class MSKtTests {
             "1 hour",
             msInstance.format(
                 60 * 60 * 1000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "1 hour, 12 minutes",
             msInstance.format(
                 60 * 60 * 1200,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "10 hours",
             msInstance.format(
                 60 * 60 * 10000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "-1 hour",
             msInstance.format(
                 -1 * 60 * 60 * 1000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "-1 hour, 12 minutes",
             msInstance.format(
                 -1 * 60 * 60 * 1200,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "-10 hours",
             msInstance.format(
                 -1 * 60 * 60 * 10000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
 
@@ -368,42 +368,42 @@ class MSKtTests {
             "1 day",
             msInstance.format(
                 24 * 60 * 60 * 1000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "1 day, 4 hours, 48 minutes",
             msInstance.format(
                 24 * 60 * 60 * 1200,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "1 week, 3 days",
             msInstance.format(
                 24 * 60 * 60 * 10000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "-1 day",
             msInstance.format(
                 -1 * 24 * 60 * 60 * 1000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "-1 day, 4 hours, 48 minutes",
             msInstance.format(
                 -1 * 24 * 60 * 60 * 1200,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
         assertEquals(
             "-1 week, 3 days",
             msInstance.format(
                 -1 * 24 * 60 * 60 * 10000,
-                Options(splitTextOutput = true, longFormat = true, splitTextOutputChar = ", ")
+                Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
     }

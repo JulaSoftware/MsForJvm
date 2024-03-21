@@ -39,5 +39,5 @@ data class Options(
      *
      * Default: " " (whitespace)
      */
-    var splitTextOutputChar: String = " "
+    var splitDelimiter: String = " "
 )
