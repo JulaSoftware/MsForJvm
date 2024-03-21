@@ -2,6 +2,7 @@ package io.github.julasoftware.ms
 
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 import java.text.NumberFormat
 import java.util.*
 
@@ -48,8 +49,8 @@ class MS {
      * @param flags Options for the output format
      * @return human-readable expression
      */
-    fun format(value: Long, flags: Int = 0): String {
-        return splitCheck(value, flags)
+    fun format(value: Long, options: Options = Options()): String {
+        return splitCheck(value, options)
     }
 
     /**
@@ -58,8 +59,8 @@ class MS {
      * @param flags Options for the output format
      * @return human-readable expression
      */
-    fun format(value: Int, flags: Int = 0): String {
-        return splitCheck(value, flags)
+    fun format(value: Int, options: Options = Options()): String {
+        return splitCheck(value, options)
     }
 
     /**
@@ -68,130 +69,132 @@ class MS {
      * @param flags Options for the output format
      * @return human-readable expression
      */
-    fun format(value: BigInteger, flags: Int = 0): String {
-        return splitCheck(value, flags)
+    fun format(value: BigInteger, options: Options = Options()): String {
+        return splitCheck(value, options)
     }
 
-    private fun splitCheck(value: Number, flags: Int): String {
-        if ((flags and OPTION_PRECISION_SPLIT_VALUE) != 0) {
+    private fun splitCheck(value: Number, options: Options): String {
+        if (options.splitTextOutput) {
+            val list = mutableListOf<String>()
+            var countDownMsNumber = value.toDouble()
+            val tmpOptions = Options(longFormat = options.longFormat)
 
+            // This may can be done more efficient
+            do {
+                val pair = calculateValue(countDownMsNumber, options)
+                val numToDissect = BigDecimal(pair.first.toDouble())
+                val remains = numToDissect.divideAndRemainder(BigDecimal(1))
+                val partString = formatInternal(
+                    remains[0].toLong(),
+                    tmpOptions,
+                    abs(remains[0] * BigDecimal(pair.second.factor)).toLong(),
+                    Pair(remains[0].toLong(), pair.second)
+                )
+                list.add(partString)
 
-            return formatInternal(value, flags)
+                val partInMs = parse(partString) ?: break
+                if (countDownMsNumber < 0)
+                    countDownMsNumber = abs(countDownMsNumber) - abs(partInMs)
+                else
+                    countDownMsNumber -= partInMs
+
+            } while (countDownMsNumber > 0 || abs(remains[1]) > BigDecimal.ZERO)
+
+            return list.joinToString(options.splitTextOutputChar)
         }
 
-        return formatInternal(value, flags)
+        return formatInternal(value, options)
     }
 
-    private fun formatInternal(value: Number, flags: Int): String {
-        val absoluteValue = abs(value)
-        val pair = calculateValue(value, flags)
+    private fun formatInternal(
+        value: Number, options: Options, absValue: Number? = null, pair: Pair<Number, Unit>? = null
+    ): String {
+        val absoluteValue = absValue ?: abs(value)
+        val pairToProcess = pair ?: calculateValue(value, options)
 
-        val longFormat = (flags and OPTION_LONG_FORMAT) != 0
-        val space = if (longFormat) " " else ""
+        val space = if (options.longFormat) " " else ""
+        val unitName = evalPair(pairToProcess, absoluteValue, options)
 
-        val unitName = when (pair.second) {
-            Unit.Years,
-            Unit.Year,
-            Unit.Yrs,
-            Unit.Yr,
-            Unit.Y -> if (longFormat) {
-                plural(absoluteValue, Unit.Days.factor, "year")
+        return "${pairToProcess.first}${space}${unitName}"
+    }
+
+    private fun evalPair(pair: Pair<Number, Unit>, absoluteValue: Number, options: Options): String {
+        return when (pair.second) {
+            Unit.Years, Unit.Year, Unit.Yrs, Unit.Yr, Unit.Y -> if (options.longFormat) {
+                plural(absoluteValue, Unit.Years.factor, "year")
             } else "y"
 
-            Unit.Weeks,
-            Unit.Week,
-            Unit.W -> if (longFormat) {
-                plural(absoluteValue, Unit.Days.factor, "week")
+            Unit.Weeks, Unit.Week, Unit.W -> if (options.longFormat) {
+                plural(absoluteValue, Unit.Weeks.factor, "week")
             } else "w"
 
-            Unit.Days,
-            Unit.Day,
-            Unit.D -> if (longFormat) {
+            Unit.Days, Unit.Day, Unit.D -> if (options.longFormat) {
                 plural(absoluteValue, Unit.Days.factor, "day")
             } else "d"
 
-            Unit.Hours,
-            Unit.Hour,
-            Unit.Hrs,
-            Unit.Hr,
-            Unit.H -> if (longFormat) {
+            Unit.Hours, Unit.Hour, Unit.Hrs, Unit.Hr, Unit.H -> if (options.longFormat) {
                 plural(absoluteValue, Unit.Hours.factor, "hour")
             } else "h"
 
 
-            Unit.Minutes,
-            Unit.Minute,
-            Unit.Mins,
-            Unit.Min,
-            Unit.M -> if (longFormat) {
+            Unit.Minutes, Unit.Minute, Unit.Mins, Unit.Min, Unit.M -> if (options.longFormat) {
                 plural(absoluteValue, Unit.Minutes.factor, "minute")
             } else "m"
 
 
-            Unit.Seconds,
-            Unit.Second,
-            Unit.Secs,
-            Unit.Sec,
-            Unit.S -> if (longFormat) {
+            Unit.Seconds, Unit.Second, Unit.Secs, Unit.Sec, Unit.S -> if (options.longFormat) {
                 plural(absoluteValue, Unit.Seconds.factor, "second")
             } else "s"
 
             else -> "ms"
         }
-
-        return "${pair.first}${space}${unitName}"
     }
 
-    private fun calculateValue(value: Number, flags: Int): Pair<Number, Unit> {
+    private fun calculateValue(value: Number, options: Options): Pair<Number, Unit> {
         val absoluteValue = abs(value)
-        val splitOptionActive = (flags and OPTION_PRECISION_SPLIT_VALUE) != 0
 
         return when {
-            absoluteValue.toDouble() >= Unit.Years.factor && splitOptionActive -> Pair(
-                precisionValue(div(value, Unit.Years.factor), flags),
-                Unit.Years
+            absoluteValue.toDouble() >= Unit.Years.factor && options.splitTextOutput -> Pair(
+                precisionValue(div(value, Unit.Years.factor), options), Unit.Years
             )
 
-            absoluteValue.toDouble() >= Unit.Weeks.factor && splitOptionActive -> Pair(
-                precisionValue(div(value, Unit.Weeks.factor), flags),
-                Unit.Weeks
+            absoluteValue.toDouble() >= Unit.Weeks.factor && options.splitTextOutput -> Pair(
+                precisionValue(div(value, Unit.Weeks.factor), options), Unit.Weeks
             )
 
             absoluteValue.toDouble() >= Unit.Days.factor -> Pair(
-                precisionValue(div(value, Unit.Days.factor), flags),
-                Unit.Days
+                precisionValue(div(value, Unit.Days.factor), options), Unit.Days
             )
 
             absoluteValue.toDouble() >= Unit.Hours.factor -> Pair(
-                precisionValue(div(value, Unit.Hours.factor), flags),
-                Unit.Hours
+                precisionValue(div(value, Unit.Hours.factor), options), Unit.Hours
             )
 
             absoluteValue.toDouble() >= Unit.Minutes.factor -> Pair(
                 precisionValue(
-                    div(value, Unit.Minutes.factor),
-                    flags
+                    div(value, Unit.Minutes.factor), options
                 ), Unit.Minutes
             )
 
             absoluteValue.toDouble() >= Unit.Seconds.factor -> Pair(
                 precisionValue(
-                    div(value, Unit.Seconds.factor),
-                    flags
+                    div(value, Unit.Seconds.factor), options
                 ), Unit.Seconds
             )
 
-            else -> Pair(value, Unit.Milliseconds)
+            else -> Pair(precisionValue(value.toDouble(), options), Unit.Milliseconds)
         }
     }
 
-    private fun precisionValue(value: Double, flags: Int): Number {
-        if ((flags and OPTION_PRECISION_SINGLE_VALUE) != 0 || (flags and OPTION_PRECISION_SPLIT_VALUE) != 0) {
-            return value;
+    private fun precisionValue(value: Double, options: Options): Number =
+        if (!options.roundNumbers || options.splitTextOutput) {
+            value
+        } else if (options.roundPrecision > 0) {
+            value.toBigDecimal().setScale(options.roundPrecision, RoundingMode.HALF_UP)
+        } else {
+            Math.round(value)
         }
 
-        return Math.round(value)
-    }
 
     private fun plural(absValue: Number, factor: Double, unitName: String): String =
         if (absValue.toDouble() >= factor * 1.5) {
