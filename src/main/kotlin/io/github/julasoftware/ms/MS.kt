@@ -7,16 +7,20 @@ import java.text.NumberFormat
 import java.util.*
 
 class MS {
-    private val regex =
-        "(?<value>-?(?:\\d+)?\\.?\\d+) *(?<type>milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?".toRegex(
-            RegexOption.IGNORE_CASE
-        )
 
-    companion object {
-        const val OPTION_LONG_FORMAT = 0x01
-        const val OPTION_PRECISION_SINGLE_VALUE = 0x02
-        const val OPTION_PRECISION_SPLIT_VALUE = 0x04
-    }
+    private val names = Unit.entries
+        .map { it.name }
+        .sortedByDescending { it.length }
+        .joinToString("|") {
+            var name = it.lowercase()
+            if (name.length > 1 && name != Unit.Ms.name.lowercase())
+                name += "?"
+
+            return@joinToString name
+        }
+
+    private val regex = "(?<value>-?(?:\\d+)?\\.?\\d+) *(?<type>$names)?".toRegex(RegexOption.IGNORE_CASE)
+
 
     /**
      * Function to convert a human-readable time duration expression into a millisecond value
@@ -29,15 +33,24 @@ class MS {
             throw IllegalArgumentException("String must not be empty")
         }
 
-        val match = regex.matchEntire(string)
-        if (match != null) {
-            val numberFormat = NumberFormat.getNumberInstance(numberLocale)
-            val value = numberFormat.parse(match.groups["value"]?.value)
-            val type = (match.groups["type"]?.value ?: "ms").lowercase()
-            val unit = Unit.find(type) ?: throw Exception("Unsupported unit: $type")
-            val res = value.toDouble().times(unit.factor)
+        var negateValue = false
+        val allMatches = regex.findAll(string)
+        if (allMatches.count() > 0) {
+            var resultMs = 0.0
+            allMatches.forEach { match ->
+                val numberFormat = NumberFormat.getNumberInstance(numberLocale)
 
-            return res
+                val value = numberFormat.parse(match.groups["value"]?.value)
+                if (!negateValue && resultMs == 0.0)
+                    negateValue = value.toDouble() < 0
+
+                val type = (match.groups["type"]?.value ?: "ms").lowercase()
+                val unit = Unit.find(type) ?: throw Exception("Unsupported unit: $type")
+
+                resultMs += abs(value.toDouble()).times(unit.factor)
+            }
+
+            return if (negateValue) -1 * resultMs else resultMs
         }
 
         return null

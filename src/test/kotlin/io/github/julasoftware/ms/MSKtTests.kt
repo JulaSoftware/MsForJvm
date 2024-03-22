@@ -44,7 +44,6 @@ class MSKtTests {
     @Test
     fun fail_to_ms_01() {
         assertNull(msInstance.parse("☃"))
-        assertNull(msInstance.parse("10-.5"))
         assertNull(msInstance.parse("ms"))
         assertNull(msInstance.parse(""))
     }
@@ -191,7 +190,10 @@ class MSKtTests {
             msInstance.format(-1 * 60 * 60 * 10000, Options(longFormat = true, roundNumbers = false)),
         )
 
-        assertEquals("1.0 day", msInstance.format(24 * 60 * 60 * 1000, Options(longFormat = true, roundNumbers = false)))
+        assertEquals(
+            "1.0 day",
+            msInstance.format(24 * 60 * 60 * 1000, Options(longFormat = true, roundNumbers = false))
+        )
         assertEquals(
             "1.2 day",
             msInstance.format(24 * 60 * 60 * 1200, Options(longFormat = true, roundNumbers = false)),
@@ -214,7 +216,10 @@ class MSKtTests {
         )
 
         assertEquals("2.711044375 days", msInstance.format(234234234, Options(longFormat = true, roundNumbers = false)))
-        assertEquals("-2.711044375 days", msInstance.format(-234234234, Options(longFormat = true, roundNumbers = false)))
+        assertEquals(
+            "-2.711044375 days",
+            msInstance.format(-234234234, Options(longFormat = true, roundNumbers = false))
+        )
 
         assertEquals("2.71 days", msInstance.format(234234234, Options(roundPrecision = 2, longFormat = true)))
         assertEquals("-2.71 days", msInstance.format(-234234234, Options(roundPrecision = 2, longFormat = true)))
@@ -406,5 +411,39 @@ class MSKtTests {
                 Options(splitTextOutput = true, longFormat = true, splitDelimiter = ", ")
             )
         )
+    }
+
+    @Test
+    fun successful_parse_split_multi_values_09() {
+        assertEquals(500.0, msInstance.parse("500 ms"))
+        assertEquals(-500.0, msInstance.parse("-500 ms"))
+
+        assertEquals(1000.0, msInstance.parse("1 second"))
+        assertEquals(1200.0, msInstance.parse("1 second, 200 ms"))
+        assertEquals(1200.0, msInstance.parse("1 second, -200 ms"))
+        assertEquals(10000.0, msInstance.parse("10 seconds"))
+        assertEquals(-1000.0, msInstance.parse("-1 second"))
+        assertEquals(-1200.0, msInstance.parse("-1 second, 200 ms"))
+        assertEquals(-10000.0, msInstance.parse("-10 seconds"))
+        assertEquals(60 * 1000.0, msInstance.parse("1 minute"))
+        assertEquals(60 * 1200.0, msInstance.parse("1 minute, 12 seconds"))
+        assertEquals(60 * 10000.0, msInstance.parse("10 minutes"))
+        assertEquals(-1 * 60 * 1000.0, msInstance.parse("-1 minute"))
+        assertEquals(-1 * 60 * 1200.0, msInstance.parse("-1 minute, 12 seconds"))
+        assertEquals(-1 * 60 * 10000.0, msInstance.parse("-10 minutes"))
+
+        assertEquals(60 * 60 * 1000.0, msInstance.parse("1 hour"))
+        assertEquals(60 * 60 * 1200.0, msInstance.parse("1 hour, 12 minutes"))
+        assertEquals(60 * 60 * 10000.0, msInstance.parse("10 hours"))
+        assertEquals(-1 * 60 * 60 * 1000.0, msInstance.parse("-1 hour"))
+        assertEquals(-1 * 60 * 60 * 1200.0, msInstance.parse("-1 hour, 12 minutes"))
+        assertEquals(-1 * 60 * 60 * 10000.0, msInstance.parse("-10 hours"))
+
+        assertEquals(24 * 60 * 60 * 1000.0, msInstance.parse("1 day"))
+        assertEquals(24 * 60 * 60 * 1200.0, msInstance.parse("1 day, 4 hours, 48 minutes"))
+        assertEquals(24 * 60 * 60 * 10000.0, msInstance.parse("1 week, 3 days"))
+        assertEquals(-1 * 24 * 60 * 60 * 1000.0, msInstance.parse("-1 day"))
+        assertEquals(-1 * 24 * 60 * 60 * 1200.0, msInstance.parse("-1 day, 4 hours, 48 minutes"))
+        assertEquals(-1 * 24 * 60 * 60 * 10000.0, msInstance.parse("-1 week, 3 days"))
     }
 }
