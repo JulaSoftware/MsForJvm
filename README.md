@@ -67,4 +67,4 @@ minimum Java Version 11
 
 ## Caught a Bug?
 
-Feel free to create a issue or a pull-request
+Feel free to create an issue or a pull-request
